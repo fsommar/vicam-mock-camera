@@ -7,6 +7,7 @@ import spark.Route;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static spark.Spark.get;
 
@@ -29,12 +30,13 @@ public class CameraServer {
                     opt = opt.filter(s -> s.startsWith("#")).map(s -> s.substring(1));
                     if (opt.isPresent()) {
                         String res = opt.get();
-                        switch (res.length()) {
-                            case 2:
-                            case 3:
-                                return responses.getOrDefault(res, "error!");
-                            default:
-                                return res;
+                        int len = res.length();
+                        if ((len == 2 || len == 3) && responses.containsKey(res)) {
+                            return responses.get(res);
+                        }
+                        Stream<String> keywords = Stream.of("PTS", "Z", "F");
+                        if (keywords.anyMatch(res::startsWith)) {
+                            return res;
                         }
                     }
                     return "error!";
