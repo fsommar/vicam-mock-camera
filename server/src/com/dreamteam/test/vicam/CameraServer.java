@@ -26,8 +26,8 @@ public class CameraServer {
             get(new Route("/cgi-bin/aw_ptz") {
                 @Override
                 public Object handle(Request request, Response response) {
-                    Optional<String> opt = Optional.of(request.queryMap("cmd").value());
-                    opt = opt.filter(s -> s.startsWith("#")).map(s -> s.substring(1));
+                    Optional<String> cmd = Optional.of(request.queryMap("cmd").value());
+                    Optional<String> opt = cmd.filter(s -> s.startsWith("#") || s.startsWith("%23")).map(s -> s.replaceAll("#|%23", ""));
                     if (opt.isPresent()) {
                         String res = opt.get();
                         int len = res.length();
@@ -39,6 +39,7 @@ public class CameraServer {
                             return res;
                         }
                     }
+                    System.out.println("Received: "+cmd.orElse(""));
                     return "error!";
                 }
             });
@@ -46,7 +47,7 @@ public class CameraServer {
             get(new Route("/cgi-bin/aw_cam") {
                 @Override
                 public Object handle(Request request, Response response) {
-                    return "Hello cam!";
+                    return "OAF:0";
                 }
             });
 
